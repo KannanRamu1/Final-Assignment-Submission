@@ -1,0 +1,69 @@
+Install-Package Microsoft.EntityFrameworkCore.SqlServer
+Install-Package Microsoft.EntityFrameworkCore.Tools
+
+using System;
+
+namespace StudentDatabaseApp
+{
+    public class Student
+    {
+        public int StudentId { get; set; }  // Primary Key
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public DateTime DateOfBirth { get; set; }
+    }
+}
+using Microsoft.EntityFrameworkCore;
+
+namespace StudentDatabaseApp
+{
+    public class SchoolContext : DbContext
+    {
+        public DbSet<Student> Students { get; set; }
+
+        // Configure the connection string (update with your SQL Server details)
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+            => options.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=StudentDb;Trusted_Connection=True;");
+e;");
+    }
+}
+using System;
+using System.Linq;
+
+namespace StudentDatabaseApp
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // Ensure the database is created
+            using (var context = new SchoolContext())
+            {
+                // This will create the database if it doesn't exist
+                context.Database.EnsureCreated();
+
+                // Check if there are any students in the database
+                if (!context.Students.Any())
+                {
+                    // Create a new student object
+                    var student = new Student
+                    {
+                        FirstName = "John",
+                        LastName = "Doe",
+                        DateOfBirth = new DateTime(2000, 1, 1)
+                    };
+
+                    // Add the student to the database and save changes
+                    context.Students.Add(student);
+                    context.SaveChanges();
+
+                    Console.WriteLine($"Student {student.FirstName} {student.LastName} added to the database.");
+                }
+                else
+                {
+                    Console.WriteLine("There are already students in the database.");
+                }
+            }
+        }
+    }
+}
